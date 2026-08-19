@@ -1,9 +1,9 @@
 #pragma once
 
-// decode-aac - a thin wrapper over cellAdec's M4AAC decoder (AAC-LC/HE-AAC, one SPU). Feed it ADTS
-// frames; pull decoded audio back as interleaved stereo float32 (multi-channel input is downmixed by
-// the decoder, mono is duplicated to both channels). Mirrors decode-h264's non-blocking discipline:
-// feeding never waits, the caller keeps pulling PCM so the decoder's internal buffers never clog.
+// decode-aac - AAC-LC/HE-AAC decoding behind one interface.  The official-SDK build uses cellAdec;
+// the PSL1GHT build uses FAAD2 because PSL1GHT has no public ADEC binding. Feed it ADTS frames and
+// pull decoded audio back as interleaved stereo float32 (multi-channel input is downmixed by the
+// decoder, mono is duplicated to both channels).
 
 #include <stdint.h>
 
@@ -15,10 +15,9 @@ typedef struct AacDecoder AacDecoder;
 
 AacDecoder *createAacDecoder(void);   // NULL on failure; rate/channels come from the ADTS headers
 
-// feeds one complete ADTS frame (header + payload) without waiting for it to be consumed. pts is
-// nanoseconds (converted to the decoder's 90 kHz clock internally, round-tripped via userData).
-// returns 0 when fed, 1 when the decoder's queues are full (pull PCM, then retry the same frame),
-// -1 on error. `data` must stay untouched until the backlog says the decoder consumed it.
+// feeds one complete ADTS frame (header + payload). pts is nanoseconds and is round-tripped to the
+// matching PCM. returns 0 when accepted, 1 when the decoder's queue is full (pull PCM, then retry
+// the same frame), -1 on error. `data` must stay untouched until the backlog says it was consumed.
 int decodeAuAac(AacDecoder *decoder, const uint8_t *data, int size, uint64_t pts);
 
 // ADTS frames fed but not yet consumed. A caller with N rotating frame buffers may safely build a

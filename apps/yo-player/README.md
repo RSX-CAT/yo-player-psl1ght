@@ -3,6 +3,10 @@
 A native PlayStation 3 YouTube client. Watch YouTube on the console the way the official app should have:
 fast, no PSN sign-in, no ads.
 
+An open-toolchain PSL1GHT port is available alongside the original Sony SDK
+project. See [BUILDING-PSL1GHT.md](BUILDING-PSL1GHT.md) for the toolchain,
+build, package, installation, limitations, and hardware-test procedure.
+
 ## Why
 
 The official PS3 YouTube app is sluggish, forces a PSN account, and is full of ads. yo-player talks to YouTube
@@ -148,7 +152,8 @@ or move it to another console:
 
 ## Build & deploy
 
-Built as an NPDRM `.pkg`. All builds go through the **ps3 MCP tool** (or the build VM directly, which is faster):
+Both targets produce an NPDRM `.pkg`. The original Sony-SDK target goes
+through the **ps3 MCP tool** (or its build VM):
 
 1. `mcp__ps3__list` — confirm the app name.
 2. `mcp__ps3__build` with kind `apps`, name `yo-player` — returns a job id.
@@ -159,6 +164,11 @@ editing any shared library it links against, do a full **Rebuild** of the app, s
 keep the old library code.
 
 `TITLE_ID` is `YOPLAYER1`.
+
+The open-source target uses native PSL1GHT Makefiles and can be built on Linux,
+macOS, or the included GitHub Actions runner without a local VM. Its side-by-side
+title ID is `YOPSL0001`; see [BUILDING-PSL1GHT.md](BUILDING-PSL1GHT.md) for the
+exact command, package filename, and platform-specific limitations.
 
 ## Known limitations
 

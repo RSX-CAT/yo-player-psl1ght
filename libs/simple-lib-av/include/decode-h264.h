@@ -1,6 +1,6 @@
 #pragma once
 
-// decode-h264 - a thin wrapper over cellVdec (the PS3's hardware H.264 decoder, run across 4 SPUs).
+// decode-h264 - a thin wrapper over the PS3's hardware H.264 decoder, run across its configured SPUs.
 // Feed it Annex-B access units; pull decoded frames back as YUV 4:2:0 planar (Y then U then V,
 // packed, width*height*3/2 bytes). Colour conversion happens on the RSX at draw time — asking the
 // decoder for RGB makes it convert on the same SPUs that decode, which costs real throughput.

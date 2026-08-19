@@ -15,7 +15,12 @@
 #include <cell/sysmodule.h>
 #include <sysutil/sysutil_sysparam.h>
 
+#ifdef PSL1GHT
+static gcmContextData *pslGcmContext;
+#define CTX pslGcmContext
+#else
 #define CTX gCellGcmCurrentContext
+#endif
 
 #define FRAME_COUNT       3
 #define HOST_MEM_SIZE     (1 * 1024 * 1024)
@@ -101,12 +106,21 @@ static int        retiredCount = 0;
 static void freeRetiredTextures(void);
 
 // shader state
+#ifdef PSL1GHT
+extern const uint8_t vpshader_vpo[];
+extern const uint8_t fpshader_fpo[];
+extern const uint8_t fpshader_yuv_fpo[];
+
+static rsxVertexProgram   *shaderVp;
+static rsxFragmentProgram *shaderFp;
+#else
 extern struct _CGprogram _binary_vpshader_vpo_start;
 extern struct _CGprogram _binary_fpshader_fpo_start;
 extern struct _CGprogram _binary_fpshader_yuv_fpo_start;
 
 static CGprogram shaderVp;
 static CGprogram shaderFp;
+#endif
 static void     *shaderVpUcode;
 static void     *shaderFpUcode;
 static uint32_t  shaderFpOffset;
@@ -115,8 +129,13 @@ static uint32_t  shaderColIdx;
 static uint32_t  shaderUvIdx;
 static uint32_t  shaderTexUnit;
 
-// yuv video shader: converts YUV 4:2:0 planar frames to RGB on the RSX (see fpshader-yuv.cg)
+// YUV video shader: converts YUV 4:2:0 planar frames to RGB on the RSX.
+// The Sony build embeds fpshader-yuv.cg; PSL1GHT embeds fpshader_yuv.vasm.
+#ifdef PSL1GHT
+static rsxFragmentProgram *shaderFpYuv;
+#else
 static CGprogram shaderFpYuv;
+#endif
 static uint32_t  shaderFpYuvOffset;
 static uint32_t  shaderYuvTexUnit[3];   // texY, texU, texV
 
@@ -312,7 +331,11 @@ int initGfx(GfxVsync vsync)
       return -1;
    }
 
+#ifdef PSL1GHT
+   ret = rsxInit(&pslGcmContext, CMD_BUFFER_SIZE, HOST_MEM_SIZE, hostAddr);
+#else
    ret = cellGcmInit(CMD_BUFFER_SIZE, HOST_MEM_SIZE, hostAddr);
+#endif
    if (ret < 0) {
       logError("[gfx] cellGcmInit failed: 0x%08x\n", ret);
       return ret;
@@ -385,6 +408,16 @@ int initGfx(GfxVsync vsync)
    initialized = 1;
 
    // init shaders
+#ifdef PSL1GHT
+   shaderVp = (rsxVertexProgram *)vpshader_vpo;
+   uint32_t vpSize;
+   rsxVertexProgramGetUCode(shaderVp, &shaderVpUcode, &vpSize);
+
+   shaderFp = (rsxFragmentProgram *)fpshader_fpo;
+   void *fpUcode;
+   uint32_t fpSize;
+   rsxFragmentProgramGetUCode(shaderFp, &fpUcode, &fpSize);
+#else
    shaderVp = (CGprogram)&_binary_vpshader_vpo_start;
    cellGcmCgInitProgram(shaderVp);
    uint32_t vpSize;
@@ -395,12 +428,21 @@ int initGfx(GfxVsync vsync)
    void *fpUcode;
    uint32_t fpSize;
    cellGcmCgGetUCode(shaderFp, &fpUcode, &fpSize);
+#endif
 
    shaderFpUcode = allocateVram(fpSize, 64);
    if (!shaderFpUcode) return -1;
    memcpy(shaderFpUcode, fpUcode, fpSize);
    cellGcmAddressToOffset(shaderFpUcode, &shaderFpOffset);
 
+#ifdef PSL1GHT
+   // The assembly vertex program deliberately uses the conventional RSX
+   // attribute slots, avoiding Cg reflection and the proprietary Cg toolkit.
+   shaderPosIdx = GCM_VERTEX_ATTRIB_POS;
+   shaderColIdx = GCM_VERTEX_ATTRIB_COLOR0;
+   shaderUvIdx  = GCM_VERTEX_ATTRIB_TEX0;
+   shaderTexUnit = 0;
+#else
    CGparameter posParam = cellGcmCgGetNamedParameter(shaderVp, "position");
    CGparameter colParam = cellGcmCgGetNamedParameter(shaderVp, "color");
    CGparameter uvParam  = cellGcmCgGetNamedParameter(shaderVp, "texcoord");
@@ -410,23 +452,37 @@ int initGfx(GfxVsync vsync)
 
    CGparameter texParam = cellGcmCgGetNamedParameter(shaderFp, "tex");
    shaderTexUnit = cellGcmCgGetParameterResource(shaderFp, texParam) - CG_TEXUNIT0;
+#endif
 
    // yuv video shader
+#ifdef PSL1GHT
+   shaderFpYuv = (rsxFragmentProgram *)fpshader_yuv_fpo;
+   void *fpYuvUcode;
+   uint32_t fpYuvSize;
+   rsxFragmentProgramGetUCode(shaderFpYuv, &fpYuvUcode, &fpYuvSize);
+#else
    shaderFpYuv = (CGprogram)&_binary_fpshader_yuv_fpo_start;
    cellGcmCgInitProgram(shaderFpYuv);
    void *fpYuvUcode;
    uint32_t fpYuvSize;
    cellGcmCgGetUCode(shaderFpYuv, &fpYuvUcode, &fpYuvSize);
+#endif
    void *fpYuvVram = allocateVram(fpYuvSize, 64);
    if (!fpYuvVram) return -1;
    memcpy(fpYuvVram, fpYuvUcode, fpYuvSize);
    cellGcmAddressToOffset(fpYuvVram, &shaderFpYuvOffset);
 
+#ifdef PSL1GHT
+   shaderYuvTexUnit[0] = 0;
+   shaderYuvTexUnit[1] = 1;
+   shaderYuvTexUnit[2] = 2;
+#else
    static const char *planeNames[3] = { "texY", "texU", "texV" };
    for (int i = 0; i < 3; i++) {
       CGparameter planeParam = cellGcmCgGetNamedParameter(shaderFpYuv, planeNames[i]);
       shaderYuvTexUnit[i] = cellGcmCgGetParameterResource(shaderFpYuv, planeParam) - CG_TEXUNIT0;
    }
+#endif
 
    // 1x1 white texture (64-byte pitch minimum for RSX)
    uint32_t *whitePix = (uint32_t *)allocateVram(64, 64);

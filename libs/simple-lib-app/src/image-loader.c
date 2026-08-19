@@ -51,7 +51,17 @@ int listSupportedImages(const char *dir, char names[][IMAGE_NAME_MAX], int maxCo
 
 // codec control-memory callbacks (heap).
 static void *imgMalloc(uint32_t size, void *arg) { (void)arg; return malloc(size); }
+#ifdef PSL1GHT
+static void imgFree(void *ptr, void *arg)        { (void)arg; free(ptr); }
+#define IMAGE_DECODE_STATUS(value) ((value).decode_status)
+#define PNG_OUTPUT_WIDTH_BYTES(value) ((value).width_byte)
+#define JPG_OUTPUT_WIDTH_BYTES(value) ((value).width_bytes)
+#else
 static int32_t imgFree(void *ptr, void *arg)     { (void)arg; free(ptr); return 0; }
+#define IMAGE_DECODE_STATUS(value) ((value).status)
+#define PNG_OUTPUT_WIDTH_BYTES(value) ((value).outputWidthByte)
+#define JPG_OUTPUT_WIDTH_BYTES(value) ((value).outputWidthByte)
+#endif
 
 // Fill a PNG source descriptor for an in-memory buffer. We always decode from
 // memory (the file is read through the VFS first) so images on userland volumes
@@ -118,7 +128,7 @@ static int decodePng(const CellPngDecSrc *src, ImageBuffer *out)
 
    uint32_t w = outParam.outputWidth;
    uint32_t h = outParam.outputHeight;
-   uint32_t stride = outParam.outputWidthByte;
+   uint32_t stride = (uint32_t)PNG_OUTPUT_WIDTH_BYTES(outParam);
 
    void *buf = malloc(stride * h);
    if (!buf) { cellPngDecClose(mainHandle, subHandle); cellPngDecDestroy(mainHandle); return -1; }
@@ -128,7 +138,7 @@ static int decodePng(const CellPngDecSrc *src, ImageBuffer *out)
    cellPngDecClose(mainHandle, subHandle);
    cellPngDecDestroy(mainHandle);
 
-   if (ret != CELL_OK || dataInfo.status != CELL_PNGDEC_DEC_STATUS_FINISH) { free(buf); return -1; }
+   if (ret != CELL_OK || IMAGE_DECODE_STATUS(dataInfo) != CELL_PNGDEC_DEC_STATUS_FINISH) { free(buf); return -1; }
 
    out->pixels = buf;
    out->w = (int)w;
@@ -199,7 +209,7 @@ static int decodeJpeg(const CellJpgDecSrc *src, ImageBuffer *out)
 
    uint32_t w = outParam.outputWidth;
    uint32_t h = outParam.outputHeight;
-   uint32_t stride = (uint32_t)outParam.outputWidthByte;
+   uint32_t stride = (uint32_t)JPG_OUTPUT_WIDTH_BYTES(outParam);
 
    // guard: even at 1/8 an enormous image could exceed the limit.
    if (w > MAX_TEX_DIM || h > MAX_TEX_DIM) {
@@ -216,7 +226,7 @@ static int decodeJpeg(const CellJpgDecSrc *src, ImageBuffer *out)
    cellJpgDecClose(mainHandle, subHandle);
    cellJpgDecDestroy(mainHandle);
 
-   if (ret != CELL_OK || dataInfo.status != CELL_JPGDEC_DEC_STATUS_FINISH) { free(buf); return -1; }
+   if (ret != CELL_OK || IMAGE_DECODE_STATUS(dataInfo) != CELL_JPGDEC_DEC_STATUS_FINISH) { free(buf); return -1; }
 
    out->pixels = buf;
    out->w = (int)w;

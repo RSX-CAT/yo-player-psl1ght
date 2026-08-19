@@ -2,8 +2,11 @@
 bin/
 obj/
 out/
+build/
 *.user
 *.sprx
+*.elf
+*.self
 *.o
 *.suo
 *.pkg

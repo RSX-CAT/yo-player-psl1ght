@@ -1,0 +1,26 @@
+!!ARBfp1.0
+# Planar YUV420 to RGB, BT.709 limited range. cgcomp's direct assembly
+# parser embeds constants declared with its #const syntax and addresses them
+# as c[n]; it intentionally ignores ARB PARAM aliases.
+#const c[0] = 0.06274 0.50196 0.50196 0.0
+#const c[1] = 1.16438 0.0 0.0 1.0
+#const c[2] = 1.79274 0.0 0.0 0.0
+#const c[3] = -0.21325 -0.53291 0.0 0.0
+#const c[4] = 2.11240 0.0 0.0 0.0
+TEX R0.x, fragment.texcoord[0], texture[0], 2D;
+TEX R1.x, fragment.texcoord[0], texture[1], 2D;
+TEX R2.x, fragment.texcoord[0], texture[2], 2D;
+SUB R0.x, R0.x, c[0].x;
+SUB R1.x, R1.x, c[0].y;
+SUB R2.x, R2.x, c[0].z;
+MUL R3.x, R0.x, c[1].x;
+MAD R4.x, R2.x, c[2].x, R3.x;
+MAD R5.x, R1.x, c[3].x, R3.x;
+MAD R6.x, R2.x, c[3].y, R5.x;
+MAD R7.x, R1.x, c[4].x, R3.x;
+MOV R8.x, R4.x;
+MOV R8.y, R6.x;
+MOV R8.z, R7.x;
+MOV R8.w, c[1].w;
+MUL result.color, R8, fragment.color;
+END

@@ -1,0 +1,46 @@
+.SUFFIXES:
+
+ifeq ($(strip $(PSL1GHT)),)
+$(error "Set PSL1GHT to the installed PSL1GHT directory")
+endif
+
+include $(PSL1GHT)/ppu_rules
+
+TARGET   := libsimple-lib-av
+BUILD    := build/psl1ght
+SOURCES  := src
+INCLUDES := include ../simple-lib-core/include ../../apps/yo-player/psl1ght/include
+
+CFILES := audio.c video-source.c live-source.c ebml.c video-probe.c h264.c \
+          mp4.c demux.c demux-mkv.c demux-mp4.c mux-mp4.c \
+          decode-h264-psl1ght.c decode-aac-faad.c video-player.c
+
+CFLAGS = -O2 -Wall -Wextra -std=gnu11 -mcpu=cell $(MACHDEP) $(INCLUDE) \
+          -DPSL1GHT -DNDEBUG -include psl1ght_compat.h
+
+LIBDIRS := $(PS3DEV)/portlibs/ppu
+
+ifneq ($(notdir $(BUILD)),$(notdir $(CURDIR)))
+export BASEDIR := $(CURDIR)
+export OUTPUT := $(CURDIR)/$(BUILD)/$(TARGET)
+export VPATH := $(foreach dir,$(SOURCES),$(CURDIR)/$(dir))
+export DEPSDIR := $(CURDIR)/$(BUILD)
+export BUILDDIR := $(CURDIR)/$(BUILD)
+export OFILES := $(CFILES:.c=.o)
+export INCLUDE := $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
+                  $(foreach dir,$(LIBDIRS),-I$(dir)/include) $(LIBPSL1GHT_INC)
+
+.PHONY: all $(BUILD) clean
+all: $(BUILD)
+
+$(BUILD):
+	@[ -d $@ ] || mkdir -p $@
+	@$(MAKE) --no-print-directory -C $@ -f $(CURDIR)/Makefile.psl1ght
+
+clean:
+	@rm -rf $(BUILD)
+else
+DEPENDS := $(OFILES:.o=.d)
+$(OUTPUT).a: $(OFILES)
+-include $(DEPENDS)
+endif

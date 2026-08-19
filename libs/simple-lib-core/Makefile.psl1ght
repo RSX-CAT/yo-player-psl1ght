@@ -1,0 +1,44 @@
+.SUFFIXES:
+
+ifeq ($(strip $(PSL1GHT)),)
+$(error "Set PSL1GHT to the installed PSL1GHT directory")
+endif
+
+include $(PSL1GHT)/ppu_rules
+
+TARGET   := libsimple-lib-core
+BUILD    := build/psl1ght
+SOURCES  := src
+INCLUDES := include ../../apps/yo-player/psl1ght/include
+
+CFILES := dbg.c network.c printf.c dir-playlist.c vfs.c vfs-init-psl1ght.c \
+          cellfs.c http.c http-stream.c zip.c
+
+CFLAGS = -O2 -Wall -Wextra -std=gnu11 -mcpu=cell $(MACHDEP) $(INCLUDE) \
+          -DPSL1GHT -DNDEBUG -include psl1ght_compat.h \
+          -fno-builtin-printf -fno-builtin-sprintf -fno-builtin-snprintf \
+          -fno-builtin-vsnprintf
+
+ifneq ($(notdir $(BUILD)),$(notdir $(CURDIR)))
+export BASEDIR := $(CURDIR)
+export OUTPUT := $(CURDIR)/$(BUILD)/$(TARGET)
+export VPATH := $(foreach dir,$(SOURCES),$(CURDIR)/$(dir))
+export DEPSDIR := $(CURDIR)/$(BUILD)
+export BUILDDIR := $(CURDIR)/$(BUILD)
+export OFILES := $(CFILES:.c=.o)
+export INCLUDE := $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) $(LIBPSL1GHT_INC)
+
+.PHONY: all $(BUILD) clean
+all: $(BUILD)
+
+$(BUILD):
+	@[ -d $@ ] || mkdir -p $@
+	@$(MAKE) --no-print-directory -C $@ -f $(CURDIR)/Makefile.psl1ght
+
+clean:
+	@rm -rf $(BUILD)
+else
+DEPENDS := $(OFILES:.o=.d)
+$(OUTPUT).a: $(OFILES)
+-include $(DEPENDS)
+endif

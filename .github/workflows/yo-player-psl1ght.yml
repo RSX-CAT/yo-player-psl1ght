@@ -1,0 +1,72 @@
+name: Yo! Player PSL1GHT
+
+on:
+  push:
+    paths:
+      - "apps/yo-player/**"
+      - "libs/simple-lib-app/**"
+      - "libs/simple-lib-av/**"
+      - "libs/simple-lib-core/**"
+      - "libs/simple-lib-https/**"
+      - ".github/workflows/yo-player-psl1ght.yml"
+  pull_request:
+    paths:
+      - "apps/yo-player/**"
+      - "libs/simple-lib-app/**"
+      - "libs/simple-lib-av/**"
+      - "libs/simple-lib-core/**"
+      - "libs/simple-lib-https/**"
+      - ".github/workflows/yo-player-psl1ght.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Pinned so a successful build remains reproducible. Update deliberately
+  # after validating a newer ps3dev pre-release on hardware.
+  PS3DEV_RELEASE: nightly-2026-07-26
+  PS3DEV_LINUX_X64_SHA256: dcbed747e094c6a382dae5b0aacc322a1d4390d9f2849a7d750a96ea398ee8ab
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Download the official prebuilt PS3DEV SDK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "$PS3DEV_RELEASE" \
+            --repo ps3dev/ps3dev \
+            --pattern "ps3dev-linux-X64.tar.gz" \
+            --dir "$RUNNER_TEMP"
+          echo "$PS3DEV_LINUX_X64_SHA256  $RUNNER_TEMP/ps3dev-linux-X64.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/ps3dev-linux-X64.tar.gz" -C "$RUNNER_TEMP"
+
+      - name: Build ELF, SELF, and installable package
+        env:
+          PS3DEV: ${{ runner.temp }}/ps3dev
+          PSL1GHT: ${{ runner.temp }}/ps3dev
+        run: |
+          export PATH="$PS3DEV/bin:$PS3DEV/ppu/bin:$PS3DEV/spu/bin:$PATH"
+          test -x "$PS3DEV/ppu/bin/ppu-gcc"
+          test -x "$PS3DEV/bin/cgcomp"
+          test -f "$PS3DEV/portlibs/ppu/include/neaacdec.h"
+          test -f "$PS3DEV/portlibs/ppu/lib/libfaad.a"
+          make -C apps/yo-player -j"$(nproc)" pkg
+
+      - name: Upload PS3 build
+        uses: actions/upload-artifact@v7
+        with:
+          name: yo-player-psl1ght
+          if-no-files-found: error
+          path: |
+            apps/yo-player/yo-player-psl1ght.elf
+            apps/yo-player/yo-player-psl1ght.self
+            apps/yo-player/yo-player-psl1ght.fake.self
+            apps/yo-player/yo-player-psl1ght.pkg
+            apps/yo-player/yo-player-psl1ght.gnpdrm.pkg
+            apps/yo-player/build/psl1ght/*.map

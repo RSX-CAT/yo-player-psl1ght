@@ -1,0 +1,6 @@
+!!VP2.0
+# Conventional PSL1GHT attribute layout: POS=0, COLOR0=3, TEX0=8.
+MOV result.position, vertex.attrib[0];
+MOV result.color, vertex.attrib[3];
+MOV result.texcoord[0], vertex.attrib[8];
+END

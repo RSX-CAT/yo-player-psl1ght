@@ -1,0 +1,67 @@
+.SUFFIXES:
+
+ifeq ($(strip $(PSL1GHT)),)
+$(error "Set PSL1GHT to the installed PSL1GHT directory")
+endif
+
+include $(PSL1GHT)/ppu_rules
+
+TARGET   := libsimple-lib-app
+BUILD    := build/psl1ght
+SOURCES  := src src/ui
+SHADERS  := ../../apps/yo-player/psl1ght/shaders
+INCLUDES := include ../simple-lib-core/include ../../apps/yo-player/psl1ght/include
+
+CFILES := app.c gfx.c image-loader.c font.c pad.c screen-manager.c anim.c \
+          button.c label.c breadcrumb.c stats.c scrollbar.c volume-meter.c \
+          key-grid.c keyboard.c hex-pad.c button-hints.c console-glyphs.c \
+          icon-font.c icon-data.c checkbox.c timer.c osk-input.c theme-registry.c
+
+VASMFILES := vpshader.vasm
+FASMFILES := fpshader.vasm fpshader_yuv.vasm
+VPOFILES  := $(VASMFILES:.vasm=.vpo)
+FPOFILES  := $(FASMFILES:.vasm=.fpo)
+
+CFLAGS = -O2 -Wall -Wextra -std=gnu11 -mcpu=cell $(MACHDEP) $(INCLUDE) \
+          -DPSL1GHT -DNDEBUG -include psl1ght_compat.h
+
+ifneq ($(notdir $(BUILD)),$(notdir $(CURDIR)))
+export BASEDIR := $(CURDIR)
+export OUTPUT := $(CURDIR)/$(BUILD)/$(TARGET)
+export VPATH := $(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
+                $(foreach dir,$(SHADERS),$(CURDIR)/$(dir))
+export DEPSDIR := $(CURDIR)/$(BUILD)
+export BUILDDIR := $(CURDIR)/$(BUILD)
+export OFILES := $(CFILES:.c=.o) $(addsuffix .o,$(VPOFILES)) $(addsuffix .o,$(FPOFILES))
+export INCLUDE := $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) $(LIBPSL1GHT_INC) -I$(CURDIR)/$(BUILD)
+
+.PHONY: all $(BUILD) clean
+all: $(BUILD)
+
+$(BUILD):
+	@[ -d $@ ] || mkdir -p $@
+	@$(MAKE) --no-print-directory -C $@ -f $(CURDIR)/Makefile.psl1ght
+
+clean:
+	@rm -rf $(BUILD)
+else
+DEPENDS := $(CFILES:.c=.d)
+$(OUTPUT).a: $(OFILES)
+
+# cgcomp's assembly reader allocates one spare byte but does not initialize it.
+# Give it an explicitly NUL-terminated temporary input so parsing cannot run
+# past the source buffer; the generated program remains a normal .vpo/.fpo.
+%.vpo: %.vasm
+	@echo $(notdir $<)
+	@cp "$<" "$@.input"
+	@printf '\000' >> "$@.input"
+	@$(CGCOMP) -v -a "$@.input" "$@"; status=$$?; rm -f "$@.input"; exit $$status
+
+%.fpo: %.vasm
+	@echo $(notdir $<)
+	@cp "$<" "$@.input"
+	@printf '\000' >> "$@.input"
+	@$(CGCOMP) -f -a "$@.input" "$@"; status=$$?; rm -f "$@.input"; exit $$status
+
+-include $(DEPENDS)
+endif

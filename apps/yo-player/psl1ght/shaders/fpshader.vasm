@@ -1,0 +1,6 @@
+!!ARBfp1.0
+# cgcomp's direct-assembly parser ignores ARB TEMP aliases; use the hardware
+# temporary register name explicitly.
+TEX R0, fragment.texcoord[0], texture[0], 2D;
+MUL result.color, R0, fragment.color;
+END

@@ -1,0 +1,46 @@
+.SUFFIXES:
+
+ifeq ($(strip $(PSL1GHT)),)
+$(error "Set PSL1GHT to the installed PSL1GHT directory")
+endif
+
+include $(PSL1GHT)/ppu_rules
+
+TARGET := libsimple-lib-https
+BUILD  := build/psl1ght
+SELF_DIR := $(patsubst %/,%,$(dir $(abspath $(firstword $(MAKEFILE_LIST)))))
+
+# GNU make recursive wildcard. BearSSL deliberately keeps unique C basenames,
+# which lets PSL1GHT's conventional flat object directory remain deterministic.
+rwildcard = $(foreach item,$(wildcard $1*),$(call rwildcard,$(item)/,$2) $(filter $(subst *,%,$2),$(item)))
+HTTPS_SOURCES := $(call rwildcard,$(SELF_DIR)/bearssl/src/,*.c) \
+                 $(call rwildcard,$(SELF_DIR)/src/,*.c)
+CFILES := $(notdir $(HTTPS_SOURCES))
+
+INCLUDES := include bearssl/inc bearssl/src ../simple-lib-core/include ../../apps/yo-player/psl1ght/include
+CFLAGS = -O2 -Wall -Wextra -std=gnu11 -mcpu=cell $(MACHDEP) $(INCLUDE) \
+          -DPSL1GHT -DNDEBUG -include psl1ght_compat.h
+
+ifneq ($(notdir $(BUILD)),$(notdir $(CURDIR)))
+export BASEDIR := $(CURDIR)
+export OUTPUT := $(CURDIR)/$(BUILD)/$(TARGET)
+export VPATH := $(sort $(dir $(HTTPS_SOURCES)))
+export DEPSDIR := $(CURDIR)/$(BUILD)
+export BUILDDIR := $(CURDIR)/$(BUILD)
+export OFILES := $(CFILES:.c=.o)
+export INCLUDE := $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) $(LIBPSL1GHT_INC)
+
+.PHONY: all $(BUILD) clean
+all: $(BUILD)
+
+$(BUILD):
+	@[ -d $@ ] || mkdir -p $@
+	@$(MAKE) --no-print-directory -C $@ -f $(CURDIR)/Makefile.psl1ght
+
+clean:
+	@rm -rf $(BUILD)
+else
+DEPENDS := $(OFILES:.o=.d)
+$(OUTPUT).a: $(OFILES)
+-include $(DEPENDS)
+endif
