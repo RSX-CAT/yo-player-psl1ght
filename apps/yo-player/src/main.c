@@ -37,22 +37,47 @@
 #define PROCESS_PRIORITY_DEFAULT 1001
 #define PROCESS_STACK_SIZE_64KB  0x10000
 
+#ifdef PSL1GHT
+// PSL1GHT's historical SYS_PROCESS_PARAM macro still advertises SDK 1.92.
+// Modern firmware modules (notably libfont/libfontFT) select compatibility
+// paths from this value, so advertise the newer process-parameter revision
+// already defined by the SDK instead of entering the obsolete 1.92 path.
+sys_process_param_t __sys_process_param
+   __attribute__((aligned(8), section(".sys_proc_param"), unused)) = {
+      sizeof(sys_process_param_t),
+      SYS_PROCESS_SPAWN_MAGIC,
+      SYS_PROCESS_SPAWN_VERSION_330,
+      SYS_PROCESS_SPAWN_FW_VERSION_330,
+      PROCESS_PRIORITY_DEFAULT,
+      PROCESS_STACK_SIZE_64KB,
+      SYS_PROCESS_SPAWN_MALLOC_PAGE_SIZE_1M,
+      SYS_PROCESS_SPAWN_PPC_SEG_DEFAULT
+   };
+#else
 SYS_PROCESS_PARAM(PROCESS_PRIORITY_DEFAULT, PROCESS_STACK_SIZE_64KB)
+#endif
 
 // Keep the PSL1GHT boot trace independent of RTC, VFS, printf, networking and
 // graphics.  A launch that returns to XMB can therefore still identify the
 // exact subsystem which was entered last on real hardware.
 #ifdef PSL1GHT
-#define BOOT_LOG "/dev_hdd0/tmp/yo-player-psl1ght-boot.log"
+static const char *const bootLogPaths[] = {
+   // The installed title directory remains writable when media-service launch
+   // policy denies access to the shared temporary directory.
+   "/dev_hdd0/game/YOPSL0001/USRDIR/yo-player-psl1ght-boot.log",
+   "/dev_hdd0/tmp/yo-player-psl1ght-boot.log"
+};
 
 static void bootMark(const char *text, uint64_t length)
 {
-   int descriptor = -1;
-   uint64_t written = 0;
-   int flags = CELL_FS_O_WRONLY | CELL_FS_O_CREAT | CELL_FS_O_APPEND;
-   if (cellFsOpen(BOOT_LOG, flags, &descriptor, NULL, 0) != CELL_FS_SUCCEEDED) return;
-   cellFsWrite(descriptor, text, length, &written);
-   cellFsClose(descriptor);
+   for (unsigned int i = 0; i < sizeof(bootLogPaths) / sizeof(bootLogPaths[0]); i++) {
+      int descriptor = -1;
+      uint64_t written = 0;
+      int flags = CELL_FS_O_WRONLY | CELL_FS_O_CREAT | CELL_FS_O_APPEND;
+      if (cellFsOpen(bootLogPaths[i], flags, &descriptor, NULL, 0) != CELL_FS_SUCCEEDED) continue;
+      cellFsWrite(descriptor, text, length, &written);
+      cellFsClose(descriptor);
+   }
 }
 
 #define BOOT_MARK(text) bootMark((text), sizeof(text) - 1)

@@ -54,6 +54,10 @@ removes only PSL1GHT outputs.
 The shaders are RSX assembly compiled with PSL1GHT's `cgcomp -a`; Nvidia Cg and
 Sony's Cg compiler are not required.
 
+The executable advertises PSL1GHT's 3.30 process-parameter revision. The SDK's
+historical `SYS_PROCESS_PARAM` macro advertises 1.92, which selects an obsolete
+compatibility path in current `libfont`/`libfontFT` firmware modules.
+
 ## Install on Evilnat CFW
 
 Copy `apps/yo-player/yo-player-psl1ght.gnpdrm.pkg` to a FAT32 USB drive's
@@ -96,9 +100,12 @@ order:
 5. Repeat at the console's 480p/576p/720p/1080p output modes that you use.
 
 Runtime diagnostics are appended to `/dev_hdd0/tmp/dbg.txt`. The open-toolchain
-build also writes dependency-free startup checkpoints to
-`/dev_hdd0/tmp/yo-player-psl1ght-boot.log`; the final line identifies the last
-subsystem reached if GameOS returns to XMB during startup.
+build also writes dependency-free startup checkpoints to both
+`/dev_hdd0/game/YOPSL0001/USRDIR/yo-player-psl1ght-boot.log` and
+`/dev_hdd0/tmp/yo-player-psl1ght-boot.log`. The app-local path remains available
+when media-service launch policy denies access to the shared temporary
+directory. The final line identifies the last subsystem reached if GameOS
+returns to XMB during startup.
 
 ## Licensing note
 
