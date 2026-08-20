@@ -12,7 +12,6 @@
 
 #define AUDIO_MAX_STREAMS    8
 #define AUDIO_SAMPLE_RATE    48000
-#define AUDIO_BLOCK_SAMPLES  CELL_AUDIO_BLOCK_SAMPLES
 #define AUDIO_PORT_BLOCKS    8     // audio-port ring-buffer block count (cellAudioPortOpen nBlock)
 
 // reads entire file into a malloc'd buffer. caller frees. NULL on failure.
