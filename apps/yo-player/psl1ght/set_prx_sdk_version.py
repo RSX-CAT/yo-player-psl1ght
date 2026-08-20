@@ -20,7 +20,7 @@ PRX_PARAM_VERSION = 4
 SDK_FIELD_OFFSET = 0x0C
 
 
-def section_location(data: bytes, wanted: bytes) -> tuple[int, int]:
+def section_location(data: bytes, wanted: bytes) -> tuple[int, int, int]:
     if data[:6] != b"\x7fELF\x02\x02":
         raise ValueError("expected a big-endian ELF64 executable")
 
@@ -44,7 +44,7 @@ def section_location(data: bytes, wanted: bytes) -> tuple[int, int]:
             continue
         name = names[name_offset:].split(b"\0", 1)[0]
         if name == wanted:
-            return header[4], header[5]
+            return header[4], header[5], header[3]
     raise ValueError(f"ELF section {wanted.decode()} was not found")
 
 
@@ -52,7 +52,7 @@ def update_prx_parameters(
     path: Path, sdk_version: int | None, sprxlinker_compat: bool
 ) -> None:
     data = bytearray(path.read_bytes())
-    offset, size = section_location(data, SECTION_NAME)
+    offset, size, _ = section_location(data, SECTION_NAME)
     if size != PRX_PARAM_SIZE or offset + size > len(data):
         raise ValueError(f"unexpected PRX parameter size 0x{size:x}")
 
@@ -77,6 +77,11 @@ def update_prx_parameters(
     if sdk_version is None:
         raise ValueError("an SDK version is required when restoring PRX parameters")
 
+    _, libstub_size, libstub_address = section_location(data, b".lib.stub")
+    libstub_end = libstub_address + libstub_size
+    if libstub_end > 0xFFFFFFFF:
+        raise ValueError("PRX import range does not fit in 32 bits")
+
     old_version = struct.unpack_from(">I", data, offset + SDK_FIELD_OFFSET)[0]
     if old_version not in (0, sdk_version):
         raise ValueError(
@@ -85,6 +90,7 @@ def update_prx_parameters(
 
     struct.pack_into(">I", data, offset, PRX_PARAM_SIZE)
     struct.pack_into(">I", data, offset + SDK_FIELD_OFFSET, sdk_version)
+    struct.pack_into(">II", data, offset + 0x18, libstub_address, libstub_end)
     path.write_bytes(data)
     print(
         f"PRX SDK version: 0x{old_version:08x} -> 0x{sdk_version:08x} "
