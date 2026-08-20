@@ -19,7 +19,8 @@ INCLUDES := include ../../libs/simple-lib-app/include ../../libs/simple-lib-av/i
 CFILES := main.c home.c play.c search.c video-grid.c storage.c stream-select.c \
           downloads.c video-export-psl1ght.c extractor.c youtube.c sponsorblock.c \
           subtitles.c chapters.c settings.c theme.c
-FONT_STUB_OFILES := cellfont_stub.o cellfont_libexport.o \
+FONT_STUB_OFILES := prx_libent_sentinel.o \
+                    cellfont_stub.o cellfont_libexport.o \
                     cellfontft_stub.o cellfontft_libexport.o
 
 TITLE     := Yo! Player (PSL1GHT)
