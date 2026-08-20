@@ -385,12 +385,12 @@ static inline void composePixel(uint8_t *d, int a, uint8_t cr, uint8_t cg, uint8
 static void blitGlyph(const CellFontImageTransInfo *ti, uint8_t *surfBase, int surfW, int surfH,
                       int dx, int dy, uint32_t argb, int overhang)
 {
-   const uint8_t *img = (const uint8_t *)ti->Image;
+   const uint8_t *img = (const uint8_t *)ti->image;
    int imgW = ti->imageWidth, imgH = ti->imageHeight;
    int imgBW = ti->imageWidthByte, surfBW = ti->surfWidthByte;
    uint8_t cr = (uint8_t)((argb >> 16) & 0xFF), cg = (uint8_t)((argb >> 8) & 0xFF), cb = (uint8_t)(argb & 0xFF);
    int alpha = (int)((argb >> 24) & 0xFF);
-   int off = (int)((const uint8_t *)ti->Surface - surfBase);
+   int off = (int)((const uint8_t *)ti->surface - surfBase);
    int gx = (off % surfBW) / 4, gy = off / surfBW;
    int outW = imgW + overhang;
    for (int iy = 0; iy < imgH; iy++) {
