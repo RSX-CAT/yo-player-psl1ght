@@ -24,7 +24,7 @@ static const char libraryName[]
    __attribute__((section(".rodata.sceResident"))) = LIBRARY_NAME;
 
 static YoPlayerPrxImportHeader header
-   __attribute__((used, section(".lib.stub"))) = {
+   __attribute__((used, aligned(16), section(".lib.stub"))) = {
    LIBRARY_HEADER_1,
    LIBRARY_HEADER_2,
    0,
