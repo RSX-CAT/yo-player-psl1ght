@@ -15,7 +15,7 @@ static const int FONT_MAX_RENDER_W = 1024;
 static const size_t FONT_MAX_SURFACE_BYTES = 16u * 1024u * 1024u;   // sanity cap for the rasterize() scratch buffer
 
 static const CellFontLibrary *fontLib = NULL;
-static CellFontRenderer       fontRenderer;
+static CellFontRenderer       activeFontRenderer;
 static int                    fontInited = 0;
 
 static void *fontMalloc(void *obj, uint32_t size) { (void)obj; return malloc(size); }
@@ -59,7 +59,7 @@ int initFont(void)
    CellFontRendererConfig rconfig;
    CellFontRendererConfig_initialize(&rconfig);
    CellFontRendererConfig_setAllocateBuffer(&rconfig, 1024 * 64, 0);
-   if (cellFontCreateRenderer(fontLib, &rconfig, &fontRenderer) != CELL_OK) return -1;
+   if (cellFontCreateRenderer(fontLib, &rconfig, &activeFontRenderer) != CELL_OK) return -1;
 
    fontInited = 1;
    return 0;
@@ -68,7 +68,7 @@ int initFont(void)
 void termFont(void)
 {
    if (!fontInited) return;
-   cellFontDestroyRenderer(&fontRenderer);
+   cellFontDestroyRenderer(&activeFontRenderer);
    cellFontEndLibrary(fontLib);
    cellFontEnd();
    cellSysmoduleUnloadModule(CELL_SYSMODULE_FONTFT);
@@ -463,7 +463,7 @@ static uint8_t *rasterize(Font *f, int size, const char *text, uint32_t color, i
 
    float fsize = (float)size;
    cellFontSetScalePixel(&f->font, fsize, fsize);
-   cellFontBindRenderer(&f->font, &fontRenderer);
+   cellFontBindRenderer(&f->font, &activeFontRenderer);
 
    // Parse inline style tags into glyph items; layout/render walk this array.
    int cap = (int)strlen(text) + 1;
@@ -755,7 +755,7 @@ int renderGlyphTexture(Font *f, int size, uint32_t code, GfxTexture *out, int *o
    if (!f->open || size <= 0) return -1;
 
    cellFontSetScalePixel(&f->font, (float)size, (float)size);
-   cellFontBindRenderer(&f->font, &fontRenderer);
+   cellFontBindRenderer(&f->font, &activeFontRenderer);
    cellFontSetupRenderScalePixel(&f->font, (float)size, (float)size);
 
    // a scratch surface with room around the glyph so the renderer never scissor-clips it; we read the
