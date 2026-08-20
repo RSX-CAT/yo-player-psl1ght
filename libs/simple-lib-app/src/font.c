@@ -39,11 +39,11 @@ int initFont(void)
 
    CellFontConfig fconfig;
    CellFontConfig_initialize(&fconfig);
-   fconfig.FileCache.buffer = fontFileCache;
-   fconfig.FileCache.size   = sizeof(fontFileCache);
+   fconfig.fileCache.buffer = fontFileCache;
+   fconfig.fileCache.size   = sizeof(fontFileCache);
    fconfig.flags = 0;
    fconfig.userFontEntryMax  = 8;
-   fconfig.userFontEntrys    = userFontEntries;
+   fconfig.userFontEntries   = userFontEntries;
    if (cellFontInit(&fconfig) != CELL_OK) return -1;
 
    CellFontLibraryConfigFT config;
@@ -275,7 +275,7 @@ float measureFontText(Font *f, int size, const char *text)
       uint32_t code = decodeUtf8(&p);
       CellFontGlyphMetrics metrics;
       if (cellFontGetCharGlyphMetrics(&f->font, code, &metrics) == CELL_OK)
-         w += quantAdvance(f, metrics.Horizontal.advance) + fontKern(f, prev, code);
+         w += quantAdvance(f, metrics.horizontal.advance) + fontKern(f, prev, code);
       else
          w += fsize;
       prev = code;
@@ -289,7 +289,7 @@ float measureFontChar(Font *f, int size, uint32_t code)
    cellFontSetScalePixel(&f->font, fsize, fsize);
    CellFontGlyphMetrics metrics;
    if (cellFontGetCharGlyphMetrics(&f->font, code, &metrics) == CELL_OK)
-      return quantAdvance(f, metrics.Horizontal.advance);
+      return quantAdvance(f, metrics.horizontal.advance);
    return fsize;
 }
 
@@ -350,7 +350,7 @@ static int parseStyledText(const char *text, uint32_t baseColor, GlyphItem *item
 static float getGlyphAdvance(Font *f, uint32_t code, float fsize)
 {
    CellFontGlyphMetrics m;
-   if (cellFontGetCharGlyphMetrics(&f->font, code, &m) == CELL_OK) return quantAdvance(f, m.Horizontal.advance);
+   if (cellFontGetCharGlyphMetrics(&f->font, code, &m) == CELL_OK) return quantAdvance(f, m.horizontal.advance);
    return fsize;
 }
 
@@ -619,7 +619,7 @@ static uint8_t *rasterize(Font *f, int size, const char *text, uint32_t color, i
                      CellFontGlyphMetrics dm;
                      if (cellFontRenderCharGlyphImage(&f->font, '.', &surf, penX + lineOffX, penY, &dm, &ti) == CELL_OK) {
                         blitGlyph(&ti, buf, surfW, surfH, bdx, bdy, shadowPass ? shadowArgb : color, 0);
-                        penX += dm.Horizontal.advance;
+                        penX += dm.horizontal.advance;
                      }
                   }
                   int endX = (int)(penX + lineOffX + 0.5f); if (endX > maxX) maxX = endX;
@@ -649,10 +649,10 @@ static uint8_t *rasterize(Font *f, int size, const char *text, uint32_t color, i
             int overhang = items[i].bold ? ((int)(fsize + 0.5f)) / 10 : 0;
             blitGlyph(&transInfo, buf, surfW, surfH, bdx, bdy,
                       shadowPass ? shadowArgb : items[i].color, overhang);
-            penX += quantAdvance(f, metrics.Horizontal.advance) + (float)overhang;
+            penX += quantAdvance(f, metrics.horizontal.advance) + (float)overhang;
             int endX = (int)(penX + lineOffX + 0.5f); if (endX > maxX) maxX = endX;
             if (!shadowPass) {
-               int goff = (int)((const uint8_t *)transInfo.Surface - buf);
+               int goff = (int)((const uint8_t *)transInfo.surface - buf);
                int gy = goff / transInfo.surfWidthByte;
                if (gy < inkMinY) inkMinY = gy;                                   // union ink box
                if (gy + transInfo.imageHeight > inkMaxY) inkMaxY = gy + transInfo.imageHeight;
@@ -664,7 +664,7 @@ static uint8_t *rasterize(Font *f, int size, const char *text, uint32_t color, i
                   // bearingY below the baseline, so baseline = gy + bearingY, and the
                   // cell top (the top edge of the line box, where a caller top-aligns an
                   // inline decoration) = gy + bearingY - baseLineY(ascent). Same units as gy.
-                  end->lineTop = gy + (int)(metrics.Horizontal.bearingY + 0.5f) - (int)baseY;
+                  end->lineTop = gy + (int)(metrics.horizontal.bearingY + 0.5f) - (int)baseY;
                   end->valid = 1;
                }
             }
@@ -779,7 +779,7 @@ int renderGlyphTexture(Font *f, int size, uint32_t code, GfxTexture *out, int *o
 
    uint32_t *argb = (uint32_t *)malloc((size_t)w * h * 4);
    if (!argb) { free(surfBuf); return -1; }
-   const uint8_t *coverage = (const uint8_t *)transInfo.Image;
+   const uint8_t *coverage = (const uint8_t *)transInfo.image;
    for (int y = 0; y < h; y++)
       for (int x = 0; x < w; x++)
          argb[y * w + x] = ((uint32_t)coverage[y * transInfo.imageWidthByte + x] << 24) | 0x00FFFFFFu;
@@ -796,8 +796,8 @@ int renderGlyphTexture(Font *f, int size, uint32_t code, GfxTexture *out, int *o
 
    // where the ink sits inside the em box: ink top-left = (bearingX, ascent - bearingY) from the em top.
    int ascentPx = (f->unitsPerEm > 0) ? (int)ceilf((float)f->hheaAscent * (float)size / (float)f->unitsPerEm) : size;
-   if (offsetX) *offsetX = (int)(metrics.Horizontal.bearingX + 0.5f);
-   if (offsetY) *offsetY = ascentPx - (int)(metrics.Horizontal.bearingY + 0.5f);
+   if (offsetX) *offsetX = (int)(metrics.horizontal.bearingX + 0.5f);
+   if (offsetY) *offsetY = ascentPx - (int)(metrics.horizontal.bearingY + 0.5f);
    return 0;
 }
 

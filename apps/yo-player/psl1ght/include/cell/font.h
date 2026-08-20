@@ -23,13 +23,6 @@ typedef fontImageTransInfo CellFontImageTransInfo;
 #define CELL_FONT_TYPE_DEFAULT_SANS_SERIF       FONT_TYPE_DEFAULT_SANS_SERIF
 #define CELL_FONT_TYPE_DEFAULT_SERIF            FONT_TYPE_DEFAULT_SERIF
 
-#define FileCache      fileCache
-#define userFontEntrys userFontEntries
-#define Horizontal     horizontal
-#define Vertical       vertical
-#define Image          image
-#define Surface        surface
-
 /* Current PSL1GHT exports this symbol but its public header contains the
  * historical fontontSetScalePixel spelling.  Declare the exported spelling
  * locally instead of depending on an implicit C function declaration. */
