@@ -56,9 +56,11 @@ Sony's Cg compiler are not required.
 
 The executable uses PSL1GHT's 3.30 process-parameter structure and advertises
 the 4.75.001 SDK level of the known-good official Yo! Player EBOOT. The SDK's
-historical `SYS_PROCESS_PARAM` macro advertises 1.92. The app also calls the
-font revision entry points with the official binary's `0x62`/`0x42` ABI flags
-instead of PSL1GHT's obsolete `0x14` font wrapper constants.
+historical `SYS_PROCESS_PARAM` macro advertises 1.92, and its public 3.30 type
+omits the required ninth crash-dump field. The app supplies the complete
+36-byte layout and also calls the font revision entry points with the official
+binary's `0x62`/`0x42` ABI flags instead of PSL1GHT's obsolete `0x14` font
+wrapper constants.
 
 ## Install on Evilnat CFW
 
