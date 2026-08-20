@@ -49,7 +49,7 @@ static struct {
    int       screenW, screenH;
 } search;
 
-static Font        font;
+static Font        uiFont;
 static Label       titleLabel, sortLabel, statusLabel;
 static ButtonHints hints;
 
@@ -133,12 +133,12 @@ static void initSearch(void)
       strCopy(search.query, sizeof search.query, pendingQuery);
    }
 
-   font = openSystemFont(FONT_POP);
-   initLabel(&titleLabel,  &font, MARGIN_X, HEADER_Y, search.screenW - 300, AUTO, TITLE_SIZE, activeTheme->textPrimary, TEXT_NOWRAP_ELLIPSIS, "");
-   initLabel(&sortLabel,   &font, 0, HEADER_Y, AUTO, AUTO, TITLE_SIZE, activeTheme->textSecondary, TEXT_NOWRAP, "");
-   initLabel(&statusLabel, &font, MARGIN_X, GRID_TOP, search.screenW - 2 * MARGIN_X, AUTO, 21, activeTheme->textSecondary, TEXT_NOWRAP, "Loading...");
+   uiFont = openSystemFont(FONT_POP);
+   initLabel(&titleLabel,  &uiFont, MARGIN_X, HEADER_Y, search.screenW - 300, AUTO, TITLE_SIZE, activeTheme->textPrimary, TEXT_NOWRAP_ELLIPSIS, "");
+   initLabel(&sortLabel,   &uiFont, 0, HEADER_Y, AUTO, AUTO, TITLE_SIZE, activeTheme->textSecondary, TEXT_NOWRAP, "");
+   initLabel(&statusLabel, &uiFont, MARGIN_X, GRID_TOP, search.screenW - 2 * MARGIN_X, AUTO, 21, activeTheme->textSecondary, TEXT_NOWRAP, "Loading...");
 
-   initButtonHints(&hints, &font, search.screenH - HINTS_BOTTOM, HINT_GLYPH_H, HINT_TEXT, activeTheme->textSecondary);
+   initButtonHints(&hints, &uiFont, search.screenH - HINTS_BOTTOM, HINT_GLYPH_H, HINT_TEXT, activeTheme->textSecondary);
    addButtonHint(&hints, getConsoleGlyph(GLYPH_CROSS),    "Play");
    addButtonHint(&hints, getConsoleGlyph(GLYPH_CIRCLE),   "Back");
    addButtonHint(&hints, getConsoleGlyph(GLYPH_SQUARE),   "Watch Later");
@@ -147,7 +147,7 @@ static void initSearch(void)
    addButtonHint(&hints, getConsoleGlyph(GLYPH_R3),       "Download");
    addButtonHint(&hints, getConsoleGlyph(GLYPH_START),    "Search");
 
-   initVideoGrid(&search.grid, &font, MARGIN_X, GRID_TOP, search.screenW - 2 * MARGIN_X, search.screenH - GRID_TOP);
+   initVideoGrid(&search.grid, &uiFont, MARGIN_X, GRID_TOP, search.screenW - 2 * MARGIN_X, search.screenH - GRID_TOP);
    setGridWatchedPredicate(&search.grid, isWatched);
    setGridWatchLaterPredicate(&search.grid, isWatchLater);
    reload();
@@ -216,7 +216,7 @@ static void termSearch(void)
    freeLabel(&titleLabel);
    freeLabel(&sortLabel);
    freeLabel(&statusLabel);
-   closeFont(&font);
+   closeFont(&uiFont);
 }
 
 void openSearchQuery(const char *query)

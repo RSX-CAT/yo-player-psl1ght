@@ -49,7 +49,7 @@ static struct {
    int       screenW, screenH;
 } home;
 
-static Font        font;
+static Font        uiFont;
 static Label       titleLabel, statusLabel;
 static ButtonHints hints;
 
@@ -166,11 +166,11 @@ static void initHome(void)
    home.screenW = getGfxScreenWidth();
    home.screenH = getGfxScreenHeight();
 
-   font = openSystemFont(FONT_POP);
-   initLabel(&titleLabel,  &font, MARGIN_X, HEADER_Y, home.screenW - 2 * MARGIN_X, AUTO, TITLE_SIZE, activeTheme->textPrimary, TEXT_NOWRAP_ELLIPSIS, "");
-   initLabel(&statusLabel, &font, MARGIN_X, GRID_TOP, home.screenW - 2 * MARGIN_X, AUTO, 21, activeTheme->textSecondary, TEXT_NOWRAP, "Loading...");
+   uiFont = openSystemFont(FONT_POP);
+   initLabel(&titleLabel,  &uiFont, MARGIN_X, HEADER_Y, home.screenW - 2 * MARGIN_X, AUTO, TITLE_SIZE, activeTheme->textPrimary, TEXT_NOWRAP_ELLIPSIS, "");
+   initLabel(&statusLabel, &uiFont, MARGIN_X, GRID_TOP, home.screenW - 2 * MARGIN_X, AUTO, 21, activeTheme->textSecondary, TEXT_NOWRAP, "Loading...");
 
-   initButtonHints(&hints, &font, home.screenH - HINTS_BOTTOM, HINT_GLYPH_H, HINT_TEXT, activeTheme->textSecondary);
+   initButtonHints(&hints, &uiFont, home.screenH - HINTS_BOTTOM, HINT_GLYPH_H, HINT_TEXT, activeTheme->textSecondary);
    addButtonHint(&hints, getConsoleGlyph(GLYPH_CROSS),    "Play");
    addButtonHint(&hints, getConsoleGlyph(GLYPH_SQUARE),   "Watch Later");
    addButtonHint(&hints, getConsoleGlyph(GLYPH_TRIANGLE), "Channel");
@@ -179,7 +179,7 @@ static void initHome(void)
    addButtonHint(&hints, getConsoleGlyph(GLYPH_L1),       "");
    addButtonHint(&hints, getConsoleGlyph(GLYPH_R1),       "Category");
 
-   initVideoGrid(&home.grid, &font, MARGIN_X, GRID_TOP, home.screenW - 2 * MARGIN_X, home.screenH - GRID_TOP);
+   initVideoGrid(&home.grid, &uiFont, MARGIN_X, GRID_TOP, home.screenW - 2 * MARGIN_X, home.screenH - GRID_TOP);
    setGridWatchedPredicate(&home.grid, isWatched);
    setGridWatchLaterPredicate(&home.grid, isWatchLater);
 
@@ -262,7 +262,7 @@ static void termHome(void)
    termButtonHints(&hints);
    freeLabel(&titleLabel);
    freeLabel(&statusLabel);
-   closeFont(&font);
+   closeFont(&uiFont);
 }
 
 void openHome(void) { changeScreen(&homeScreen); }

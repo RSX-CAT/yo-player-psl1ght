@@ -143,7 +143,7 @@ static struct {
 
 #define STAT_LINES 4
 
-static Font  font;
+static Font  uiFont;
 static Label statusLabel;
 static Label statLabels[STAT_LINES];
 static Label timeLeftLabel, timeRightLabel;   // seek bar: current time (left) / total (right)
@@ -266,23 +266,23 @@ static void initPlay(void)
    state.screenW = getGfxScreenWidth();
    state.screenH = getGfxScreenHeight();
 
-   font = openSystemFont(FONT_POP);
-   initLabel(&statusLabel, &font, 0, 0, 1400, AUTO, 28, activeTheme->textPrimary, TEXT_NOWRAP, "");
+   uiFont = openSystemFont(FONT_POP);
+   initLabel(&statusLabel, &uiFont, 0, 0, 1400, AUTO, 28, activeTheme->textPrimary, TEXT_NOWRAP, "");
    for (int i = 0; i < STAT_LINES; i++)
-      initLabel(&statLabels[i], &font, 0, 0, 600, AUTO, 22, activeTheme->textPrimary, TEXT_NOWRAP, "");
-   initLabel(&timeLeftLabel,  &font, 0, 0, 200, AUTO, 22, activeTheme->textPrimary, TEXT_NOWRAP, "");
-   initLabel(&timeRightLabel, &font, 0, 0, 200, AUTO, 22, activeTheme->textPrimary, TEXT_NOWRAP, "");
-   initLabelRaw(&toastLabel, &font, 0, 0, 400, AUTO, 22, activeTheme->textPrimary, TEXT_NOWRAP, "");   // raw: shows track names
-   initLabelRaw(&titleLabel, &font, 0, 0, 1100, AUTO, 22, activeTheme->textPrimary, TEXT_NOWRAP_ELLIPSIS, "");
-   initLabelRaw(&subtitleLabel, &font, 0, 0, 1600, AUTO, SUBTITLE_TEXT_SIZE, activeTheme->textPrimary, TEXT_WRAP, "");
-   initLabelRaw(&subsHudLabel, &font, 0, 0, 500, AUTO, 22, activeTheme->textPrimary, TEXT_NOWRAP_ELLIPSIS, "");
+      initLabel(&statLabels[i], &uiFont, 0, 0, 600, AUTO, 22, activeTheme->textPrimary, TEXT_NOWRAP, "");
+   initLabel(&timeLeftLabel,  &uiFont, 0, 0, 200, AUTO, 22, activeTheme->textPrimary, TEXT_NOWRAP, "");
+   initLabel(&timeRightLabel, &uiFont, 0, 0, 200, AUTO, 22, activeTheme->textPrimary, TEXT_NOWRAP, "");
+   initLabelRaw(&toastLabel, &uiFont, 0, 0, 400, AUTO, 22, activeTheme->textPrimary, TEXT_NOWRAP, "");   // raw: shows track names
+   initLabelRaw(&titleLabel, &uiFont, 0, 0, 1100, AUTO, 22, activeTheme->textPrimary, TEXT_NOWRAP_ELLIPSIS, "");
+   initLabelRaw(&subtitleLabel, &uiFont, 0, 0, 1600, AUTO, SUBTITLE_TEXT_SIZE, activeTheme->textPrimary, TEXT_WRAP, "");
+   initLabelRaw(&subsHudLabel, &uiFont, 0, 0, 500, AUTO, 22, activeTheme->textPrimary, TEXT_NOWRAP_ELLIPSIS, "");
    for (int i = 0; i < MAX_CHAPTERS; i++) {
-      initLabelRaw(&chapterLabels[i], &font, 0, 0, 990, AUTO, CHAPTER_TEXT_SIZE, activeTheme->textPrimary, TEXT_NOWRAP_ELLIPSIS, "");
-      initLabel(&chapterTimeLabels[i], &font, 0, 0, 150, AUTO, CHAPTER_TEXT_SIZE, activeTheme->textSecondary, TEXT_NOWRAP, "");
+      initLabelRaw(&chapterLabels[i], &uiFont, 0, 0, 990, AUTO, CHAPTER_TEXT_SIZE, activeTheme->textPrimary, TEXT_NOWRAP_ELLIPSIS, "");
+      initLabel(&chapterTimeLabels[i], &uiFont, 0, 0, 150, AUTO, CHAPTER_TEXT_SIZE, activeTheme->textSecondary, TEXT_NOWRAP, "");
    }
    state.subtitlePick = state.subtitleFetched = -1;   // default off (memset left them 0)
 
-   initVolumeMeter(&volumeMeter, &font, activeTheme->accent, volumeLevel);
+   initVolumeMeter(&volumeMeter, &uiFont, activeTheme->accent, volumeLevel);
    layoutVolumeMeter(&volumeMeter, state.screenW, state.screenH);
 
    state.threadActive = (spawnJoinableThread(&state.workerTid, worker, 0,
@@ -413,7 +413,7 @@ static void autoSkipSponsor(void)
 static void openDescription(void)
 {
    if (!state.descriptionRendered) {
-      renderFontRaw(&descriptionTexture, &font, DESCRIPTION_TEXT_SIZE, state.description[0] ? state.description : "No description.",
+      renderFontRaw(&descriptionTexture, &uiFont, DESCRIPTION_TEXT_SIZE, state.description[0] ? state.description : "No description.",
                     activeTheme->textPrimary, state.screenW - 2 * DESCRIPTION_MARGIN_X, TEXT_WRAP);
       state.descriptionRendered = 1;
    }
@@ -814,7 +814,7 @@ static void termPlay(void)
    for (int i = 0; i < MAX_CHAPTERS; i++) { freeLabel(&chapterLabels[i]); freeLabel(&chapterTimeLabels[i]); }
    freeVolumeMeter(&volumeMeter);
    freeTextTexture(&descriptionTexture);
-   closeFont(&font);
+   closeFont(&uiFont);
 }
 
 Screen playScreen = { initPlay, NULL, updatePlay, drawPlay, NULL, termPlay, SCREEN_TERMINATED };

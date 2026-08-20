@@ -42,7 +42,7 @@ static struct {
    int              initialized;
 } dl;
 
-static Font  font;
+static Font  uiFont;
 static Label overlayLabel;
 
 // ---- filename ----
@@ -234,8 +234,8 @@ void initDownloads(void)
 {
    memset(&dl, 0, sizeof dl);
    createLock(&dl.mutex);
-   font = openSystemFont(FONT_POP);
-   initLabel(&overlayLabel, &font, 0, 0, AUTO, AUTO, OVERLAY_TEXT_SIZE, activeTheme->textPrimary, TEXT_NOWRAP, "");
+   uiFont = openSystemFont(FONT_POP);
+   initLabel(&overlayLabel, &uiFont, 0, 0, AUTO, AUTO, OVERLAY_TEXT_SIZE, activeTheme->textPrimary, TEXT_NOWRAP, "");
    dl.initialized = 1;
 }
 
@@ -247,7 +247,7 @@ void shutdownDownloads(void)
    dl.count = 0;
    finishGfx();   // the overlay label may have been sampled last frame
    freeLabel(&overlayLabel);
-   closeFont(&font);
+   closeFont(&uiFont);
    destroyLock(&dl.mutex);
    dl.initialized = 0;
 }
