@@ -109,6 +109,14 @@ DEPENDS := $(OFILES:.o=.d)
 	@$(CC) $(DEPSOPT) -c $(@:.o=.generated.S) -o $@
 
 $(OUTPUT).self: $(OUTPUT).elf
+	@echo CEX self ... $(notdir $@)
+	@mkdir -p $(BUILDDIR)
+	@$(STRIP) $< -o $(BUILDDIR)/$(notdir $<)
+	@$(SPRX) $(BUILDDIR)/$(notdir $<)
+	@python3 $(CURDIR)/psl1ght/set_prx_sdk_version.py \
+		$(BUILDDIR)/$(notdir $<) --sdk 0x00475001
+	@$(SELF) $(BUILDDIR)/$(notdir $<) $@
+	@$(FSELF) $(BUILDDIR)/$(notdir $<) $(basename $@).fake.self
 $(OUTPUT).elf: $(OFILES) $(APP_LIB) $(AV_LIB) $(HTTPS_LIB) $(CORE_LIB)
 -include $(DEPENDS)
 endif
