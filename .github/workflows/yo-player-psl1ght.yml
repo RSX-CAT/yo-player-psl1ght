@@ -63,6 +63,7 @@ jobs:
           make -C apps/yo-player -j"$(nproc)" pkg
 
       - name: Upload PS3 build
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: yo-player-psl1ght
@@ -74,3 +75,4 @@ jobs:
             apps/yo-player/yo-player-psl1ght.pkg
             apps/yo-player/yo-player-psl1ght.gnpdrm.pkg
             apps/yo-player/build/psl1ght/*.map
+            apps/yo-player/build/psl1ght/lv2-sprx-modern.o
