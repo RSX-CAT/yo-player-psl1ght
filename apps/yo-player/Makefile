@@ -12,13 +12,15 @@ LD := $(CC)
 
 TARGET  := yo-player-psl1ght
 BUILD   := build/psl1ght
-SOURCES := src src/screens src/extractors
+SOURCES := src src/screens src/extractors psl1ght/stubs
 INCLUDES := include ../../libs/simple-lib-app/include ../../libs/simple-lib-av/include \
             ../../libs/simple-lib-https/include ../../libs/simple-lib-core/include psl1ght/include
 
 CFILES := main.c home.c play.c search.c video-grid.c storage.c stream-select.c \
           downloads.c video-export-psl1ght.c extractor.c youtube.c sponsorblock.c \
-          subtitles.c chapters.c settings.c theme.c
+          subtitles.c chapters.c settings.c theme.c cellfont_libexport.c \
+          cellfontft_libexport.c
+SFILES := cellfont_stub.S cellfontft_stub.S
 
 TITLE     := Yo! Player (PSL1GHT)
 APPID     := YOPSL0001
@@ -43,7 +45,7 @@ PROJECT_LIBDIRS := $(ROOT)/libs/simple-lib-app/build/psl1ght \
                    $(ROOT)/libs/simple-lib-https/build/psl1ght \
                    $(ROOT)/libs/simple-lib-core/build/psl1ght
 LIBS := -lsimple-lib-app -lsimple-lib-av -lsimple-lib-https -lsimple-lib-core \
-        -lfaad -lvdec -laudio -lrsx -lgcm_sys -lio -lsysutil -lfont -lfontFT \
+        -lfaad -lvdec -laudio -lrsx -lgcm_sys -lio -lsysutil \
         -lpngdec -ljpgdec -lsysmodule -lnet -lsysfs -lrt -llv2 -lm
 
 ifneq ($(notdir $(BUILD)),$(notdir $(CURDIR)))
@@ -51,7 +53,7 @@ export OUTPUT := $(CURDIR)/$(TARGET)
 export VPATH := $(foreach dir,$(SOURCES),$(CURDIR)/$(dir))
 export DEPSDIR := $(CURDIR)/$(BUILD)
 export BUILDDIR := $(CURDIR)/$(BUILD)
-export OFILES := $(CFILES:.c=.o)
+export OFILES := $(CFILES:.c=.o) $(SFILES:.S=.o)
 export INCLUDE := $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
                   -I$(PORTLIBS)/include $(LIBPSL1GHT_INC) -I$(CURDIR)/$(BUILD)
 export LIBPATHS := $(foreach dir,$(PROJECT_LIBDIRS),-L$(dir)) -L$(PORTLIBS)/lib $(LIBPSL1GHT_LIB)

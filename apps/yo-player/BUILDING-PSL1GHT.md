@@ -60,7 +60,9 @@ historical `SYS_PROCESS_PARAM` macro advertises 1.92, and its public 3.30 type
 omits the required ninth crash-dump field. The app supplies the complete
 36-byte layout and also calls the font revision entry points with the official
 binary's `0x62`/`0x42` ABI flags instead of PSL1GHT's obsolete `0x14` font
-wrapper constants.
+wrapper constants. A target-local, minimal font import table prevents
+PSL1GHT's all-symbol stub archive from exposing an unresolved app-side
+`cellFontGetRevisionFlags`, which otherwise intercepts libfontFT's dependency.
 
 ## Install on Evilnat CFW
 
