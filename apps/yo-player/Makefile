@@ -113,7 +113,7 @@ $(OUTPUT).self: $(OUTPUT).elf
 	@mkdir -p $(BUILDDIR)
 	@$(STRIP) $< -o $(BUILDDIR)/$(notdir $<)
 	@$(SPRX) $(BUILDDIR)/$(notdir $<)
-	@python3 $(CURDIR)/psl1ght/set_prx_sdk_version.py \
+	@python3 $(PROJECT_DIR)/psl1ght/set_prx_sdk_version.py \
 		$(BUILDDIR)/$(notdir $<) --sdk 0x00475001
 	@$(SELF) $(BUILDDIR)/$(notdir $<) $@
 	@$(FSELF) $(BUILDDIR)/$(notdir $<) $(basename $@).fake.self
