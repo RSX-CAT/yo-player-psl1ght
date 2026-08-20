@@ -5,9 +5,9 @@ SDK project and selects PSL1GHT-specific implementations from the Makefiles.
 The package uses title ID `YOPSL0001`, so it installs beside the official-SDK
 release (`YOPLAYER1`) instead of replacing a known-good installation. Both
 builds intentionally share settings, history, and downloads below
-`/dev_hdd0/tmp/yo-player/`. Its `PARAM.SFO` category is `HG`, the standalone
-HDD-application category expected by GameOS, so the port appears in the Game
-column rather than using the official build's service-specific metadata.
+`/dev_hdd0/tmp/yo-player/`. It retains the original app's `AT` media-service
+category so it remains in the streaming-services location instead of the Game
+column.
 
 ## Supported build hosts
 
