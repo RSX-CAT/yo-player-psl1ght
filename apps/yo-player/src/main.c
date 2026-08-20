@@ -39,15 +39,15 @@
 
 #ifdef PSL1GHT
 // PSL1GHT's historical SYS_PROCESS_PARAM macro still advertises SDK 1.92.
-// Modern firmware modules (notably libfont/libfontFT) select compatibility
-// paths from this value, so advertise the newer process-parameter revision
-// already defined by the SDK instead of entering the obsolete 1.92 path.
+// Match the known-good official Yo! Player EBOOT's 4.75.001 SDK field while
+// retaining PSL1GHT's latest supported process-parameter structure revision.
+#define YO_PLAYER_SDK_VERSION_475_001 0x00475001
 sys_process_param_t __sys_process_param
    __attribute__((aligned(8), section(".sys_proc_param"), unused)) = {
       sizeof(sys_process_param_t),
       SYS_PROCESS_SPAWN_MAGIC,
       SYS_PROCESS_SPAWN_VERSION_330,
-      SYS_PROCESS_SPAWN_FW_VERSION_330,
+      YO_PLAYER_SDK_VERSION_475_001,
       PROCESS_PRIORITY_DEFAULT,
       PROCESS_STACK_SIZE_64KB,
       SYS_PROCESS_SPAWN_MALLOC_PAGE_SIZE_1M,

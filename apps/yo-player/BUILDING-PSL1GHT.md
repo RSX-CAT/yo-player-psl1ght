@@ -54,9 +54,11 @@ removes only PSL1GHT outputs.
 The shaders are RSX assembly compiled with PSL1GHT's `cgcomp -a`; Nvidia Cg and
 Sony's Cg compiler are not required.
 
-The executable advertises PSL1GHT's 3.30 process-parameter revision. The SDK's
-historical `SYS_PROCESS_PARAM` macro advertises 1.92, which selects an obsolete
-compatibility path in current `libfont`/`libfontFT` firmware modules.
+The executable uses PSL1GHT's 3.30 process-parameter structure and advertises
+the 4.75.001 SDK level of the known-good official Yo! Player EBOOT. The SDK's
+historical `SYS_PROCESS_PARAM` macro advertises 1.92. The app also calls the
+font revision entry points with the official binary's `0x62`/`0x42` ABI flags
+instead of PSL1GHT's obsolete `0x14` font wrapper constants.
 
 ## Install on Evilnat CFW
 

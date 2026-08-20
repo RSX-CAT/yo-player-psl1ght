@@ -27,9 +27,17 @@ int initFont(void)
 {
    if (fontInited) return 0;
 
-   cellSysmoduleLoadModule(CELL_SYSMODULE_FONT);
-   cellSysmoduleLoadModule(CELL_SYSMODULE_FREETYPE);
-   cellSysmoduleLoadModule(CELL_SYSMODULE_FONTFT);
+   int rc;
+   logInfo("[font] loading FONT module\n");
+   rc = cellSysmoduleLoadModule(CELL_SYSMODULE_FONT);
+   logInfo("[font] FONT module rc=0x%08x\n", (unsigned int)rc);
+   if (rc != CELL_OK) return -1;
+   rc = cellSysmoduleLoadModule(CELL_SYSMODULE_FREETYPE);
+   logInfo("[font] FREETYPE module rc=0x%08x\n", (unsigned int)rc);
+   if (rc != CELL_OK) return -1;
+   rc = cellSysmoduleLoadModule(CELL_SYSMODULE_FONTFT);
+   logInfo("[font] FONTFT module rc=0x%08x\n", (unsigned int)rc);
+   if (rc != CELL_OK) return -1;
 
    static uint32_t fontFileCache[256 * 1024 / sizeof(uint32_t)];
    // Slots for user fonts opened via openFontFile/openFontMemory. CellFontConfig_initialize
@@ -44,7 +52,10 @@ int initFont(void)
    fconfig.flags = 0;
    fconfig.userFontEntryMax  = 8;
    fconfig.userFontEntries   = userFontEntries;
-   if (cellFontInit(&fconfig) != CELL_OK) return -1;
+   logInfo("[font] initializing libfont\n");
+   rc = cellFontInit(&fconfig);
+   logInfo("[font] libfont rc=0x%08x\n", (unsigned int)rc);
+   if (rc != CELL_OK) return -1;
 
    CellFontLibraryConfigFT config;
    CellFontLibraryConfigFT_initialize(&config);
@@ -54,12 +65,18 @@ int initFont(void)
    config.MemoryIF.Realloc = fontRealloc;
    config.MemoryIF.Calloc  = fontCalloc;
 
-   if (cellFontInitLibraryFreeType(&config, &fontLib) != CELL_OK) return -1;
+   logInfo("[font] initializing FreeType library\n");
+   rc = cellFontInitLibraryFreeType(&config, &fontLib);
+   logInfo("[font] FreeType rc=0x%08x lib=%p\n", (unsigned int)rc, fontLib);
+   if (rc != CELL_OK) return -1;
 
    CellFontRendererConfig rconfig;
    CellFontRendererConfig_initialize(&rconfig);
    CellFontRendererConfig_setAllocateBuffer(&rconfig, 1024 * 64, 0);
-   if (cellFontCreateRenderer(fontLib, &rconfig, &activeFontRenderer) != CELL_OK) return -1;
+   logInfo("[font] creating renderer\n");
+   rc = cellFontCreateRenderer(fontLib, &rconfig, &activeFontRenderer);
+   logInfo("[font] renderer rc=0x%08x\n", (unsigned int)rc);
+   if (rc != CELL_OK) return -1;
 
    fontInited = 1;
    return 0;

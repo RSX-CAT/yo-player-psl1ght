@@ -17,6 +17,19 @@ typedef fontKerning CellFontKerning;
 typedef fontRenderSurface CellFontRenderSurface;
 typedef fontImageTransInfo CellFontImageTransInfo;
 
+/* The PSL1GHT wrapper library currently reports revision 0x14 here.  The
+ * working official Yo! Player binary built with SDK 4.75 requests 0x62, and
+ * current GameOS libfont uses that revision when constructing its callbacks.
+ * Call the exported revision entry point directly so the open-toolchain build
+ * follows the same ABI contract instead of entering the obsolete stub path. */
+#define YO_PLAYER_CELL_FONT_REVISION 0x62ULL
+extern s32 fontInitializeWithRevision(u64 revision, fontConfig *config);
+
+static inline s32 yoPlayerFontInit(CellFontConfig *config)
+{
+   return fontInitializeWithRevision(YO_PLAYER_CELL_FONT_REVISION, config);
+}
+
 #define CELL_FONT_MAP_UNICODE FONT_MAP_UNICODE
 #define CELL_FONT_TYPE_DEFAULT_GOTHIC_LATIN_SET FONT_TYPE_DEFAULT_GOTHIC_LATIN_SET
 #define CELL_FONT_TYPE_DEFAULT_GOTHIC_JP_SET    FONT_TYPE_DEFAULT_GOTHIC_JP_SET
@@ -45,7 +58,7 @@ static inline void CellFontRendererConfig_setAllocateBuffer(
    config->bufferingPolicy.maxSize = maxSize;
 }
 
-#define cellFontInit                   fontInit
+#define cellFontInit                   yoPlayerFontInit
 #define cellFontOpenFontset            fontOpenFontset
 #define cellFontOpenFont               fontOpenFontFile
 #define cellFontOpenFontMemory         fontOpenFontMemory
