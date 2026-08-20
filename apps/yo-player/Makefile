@@ -98,6 +98,13 @@ pkg: $(BUILD)
 	@$(MAKE) --no-print-directory $(OUTPUT).pkg
 else
 DEPENDS := $(OFILES:.o=.d)
+
+# PRX import headers contain 32-bit guest pointers.  Match PSL1GHT's own
+# libexport build rule: emit the C initializer with -m32, then assemble it.
+%_libexport.o: %_libexport.c
+	@$(CC) $(DEPSOPT) -S -m32 $(INCLUDE) $< -o $(@:.o=.generated.S)
+	@$(CC) $(DEPSOPT) -c $(@:.o=.generated.S) -o $@
+
 $(OUTPUT).self: $(OUTPUT).elf
 $(OUTPUT).elf: $(OFILES) $(APP_LIB) $(AV_LIB) $(HTTPS_LIB) $(CORE_LIB)
 -include $(DEPENDS)
