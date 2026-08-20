@@ -93,7 +93,10 @@ order:
 4. Download a video and verify that it remains in the downloads directory.
 5. Repeat at the console's 480p/576p/720p/1080p output modes that you use.
 
-Runtime diagnostics are appended to `/dev_hdd0/tmp/dbg.txt`.
+Runtime diagnostics are appended to `/dev_hdd0/tmp/dbg.txt`. The open-toolchain
+build also writes dependency-free startup checkpoints to
+`/dev_hdd0/tmp/yo-player-psl1ght-boot.log`; the final line identifies the last
+subsystem reached if GameOS returns to XMB during startup.
 
 ## Licensing note
 
