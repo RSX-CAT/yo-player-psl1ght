@@ -39,6 +39,7 @@ PORTLIBS   := $(PS3DEV)/portlibs/ppu
 CFLAGS = -O2 -Wall -Wextra -std=gnu11 -mcpu=cell $(MACHDEP) $(INCLUDE) \
           -DPSL1GHT -DNDEBUG -include psl1ght_compat.h \
           -DBUILD_NAME=\"yo-player-psl1ght\" -DBUILD_STAMP=\"$(shell git -C $(ROOT) rev-parse --short HEAD 2>/dev/null || echo unknown)\"
+ASFLAGS = $(MACHDEP) -mregnames -mcpu=cell -Wa,-mcell $(INCLUDE)
 LDFLAGS = $(MACHDEP) -Wl,--gc-sections -Wl,-Map,$(notdir $@).map
 PROJECT_LIBDIRS := $(ROOT)/libs/simple-lib-app/build/psl1ght \
                    $(ROOT)/libs/simple-lib-av/build/psl1ght \
