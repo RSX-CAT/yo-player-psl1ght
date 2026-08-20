@@ -6,6 +6,10 @@ endif
 
 include $(PSL1GHT)/ppu_rules
 
+# GNU make supplies a built-in LD=ld, so PSL1GHT's conditional LD assignment
+# does not replace it.  Link through the PPU GCC driver selected by ppu_rules.
+LD := $(CC)
+
 TARGET  := yo-player-psl1ght
 BUILD   := build/psl1ght
 SOURCES := src src/screens src/extractors
