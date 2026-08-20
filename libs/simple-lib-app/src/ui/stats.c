@@ -15,7 +15,7 @@
 // than any line we draw; content is cropped to its true width on upload.
 #define STATS_WRAP_WIDTH 400
 
-static Font font;
+static Font statsFont;
 static int posX, posY, fontSize;
 static uint32_t color;
 static TextTexture tt;
@@ -63,7 +63,7 @@ static void buildBuf(void)
 
 void initStats(int x, int y, int size, uint32_t clr)
 {
-   font = openSystemFont(FONT_POP);
+   statsFont = openSystemFont(FONT_POP);
    posX = x;
    posY = y;
    fontSize = size;
@@ -111,7 +111,7 @@ void drawStats(void)
 
       buildBuf();
       if (strcmp(buf, lastBuf) != 0) {
-         renderFont(&tt, &font, fontSize, buf, color, STATS_WRAP_WIDTH, TEXT_WRAP);
+         renderFont(&tt, &statsFont, fontSize, buf, color, STATS_WRAP_WIDTH, TEXT_WRAP);
          strCopy(lastBuf, sizeof lastBuf, buf);
       }
    }
@@ -123,5 +123,5 @@ void drawStats(void)
 void termStats(void)
 {
    freeTextTexture(&tt);
-   closeFont(&font);
+   closeFont(&statsFont);
 }
