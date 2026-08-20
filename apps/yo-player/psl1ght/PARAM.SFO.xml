@@ -3,7 +3,9 @@
   <value name="APP_VER" type="string">01.00</value>
   <value name="ATTRIBUTE" type="integer">0</value>
   <value name="BOOTABLE" type="integer">1</value>
-  <value name="CATEGORY" type="string">AT</value>
+  <!-- Standalone PSL1GHT packages must use the HDD-game category.  AT is an
+       add-on/update category and GameOS can reject it before main(). -->
+  <value name="CATEGORY" type="string">HG</value>
   <value name="LICENSE" type="string">Open-source homebrew. Not affiliated with Sony Computer Entertainment Inc. or YouTube / Google.</value>
   <value name="PARENTAL_LEVEL" type="integer">0</value>
   <value name="PS3_SYSTEM_VER" type="string">04.7500</value>
