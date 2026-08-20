@@ -12,7 +12,7 @@ LD := $(CC)
 
 TARGET  := yo-player-psl1ght
 BUILD   := build/psl1ght
-SOURCES := src src/screens src/extractors psl1ght/stubs
+SOURCES := src src/screens src/extractors psl1ght psl1ght/stubs
 INCLUDES := include ../../libs/simple-lib-app/include ../../libs/simple-lib-av/include \
             ../../libs/simple-lib-https/include ../../libs/simple-lib-core/include psl1ght/include
 
@@ -57,7 +57,7 @@ export BUILDDIR := $(CURDIR)/$(BUILD)
 # sprxlinker derives each import count from the distance between consecutive
 # FNID marker symbols.  Keep every assembly marker immediately before its C
 # table object; grouping all .S files separately would make both counts zero.
-export OFILES := $(FONT_STUB_OFILES) $(CFILES:.c=.o)
+export OFILES := lv2-sprx-modern.o $(FONT_STUB_OFILES) $(CFILES:.c=.o)
 export INCLUDE := $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
                   -I$(PORTLIBS)/include $(LIBPSL1GHT_INC) -I$(CURDIR)/$(BUILD)
 export LIBPATHS := $(foreach dir,$(PROJECT_LIBDIRS),-L$(dir)) -L$(PORTLIBS)/lib $(LIBPSL1GHT_LIB)

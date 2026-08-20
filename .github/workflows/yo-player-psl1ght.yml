@@ -58,7 +58,7 @@ jobs:
           test -f "$PS3DEV/portlibs/ppu/lib/libfaad.a"
           test -f "$PS3DEV/ppu/ppu/lib/lv2-sprx.o"
           "$PS3DEV/ppu/bin/ppu-gcc" -c -mcpu=cell -mregnames -Wa,-mcell \
-            apps/yo-player/psl1ght/lv2-sprx-modern.S \
+            apps/yo-player/psl1ght/lv2-sprx-empty.S \
             -o "$PS3DEV/ppu/ppu/lib/lv2-sprx.o"
           make -C apps/yo-player -j"$(nproc)" pkg
 
