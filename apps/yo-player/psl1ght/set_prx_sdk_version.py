@@ -17,7 +17,7 @@ SECTION_NAME = b".sys_proc_prx_param"
 PRX_PARAM_SIZE = 0x28
 PRX_PARAM_MAGIC = 0x1B434CEC
 PRX_PARAM_VERSION = 2
-SDK_FIELD_OFFSET = 0x24
+SDK_FIELD_OFFSET = 0x0C
 
 
 def section_location(data: bytes, wanted: bytes) -> tuple[int, int]:
