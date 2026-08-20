@@ -112,6 +112,8 @@ $(OUTPUT).self: $(OUTPUT).elf
 	@echo CEX self ... $(notdir $@)
 	@mkdir -p $(BUILDDIR)
 	@cp $< $(BUILDDIR)/$(notdir $<)
+	@python3 $(PROJECT_DIR)/psl1ght/set_prx_sdk_version.py \
+		$(BUILDDIR)/$(notdir $<) --sprxlinker-compat
 	@$(SPRX) $(BUILDDIR)/$(notdir $<)
 	@python3 $(PROJECT_DIR)/psl1ght/set_prx_sdk_version.py \
 		$(BUILDDIR)/$(notdir $<) --sdk 0x00475001
