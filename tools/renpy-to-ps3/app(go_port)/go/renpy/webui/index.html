@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ren'Py to PS3</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <div class="row">
+        <label>Task:</label>
+        <select id="task"></select>
+      </div>
+
+      <div class="row">
+        <label id="input-label">Game folder:</label>
+        <div class="field">
+          <input id="input-path" type="text" placeholder="ren'py 'game' folder" />
+        </div>
+        <button id="browse-input" type="button">Browse...</button>
+      </div>
+
+      <div class="row" id="output-row">
+        <label>Output:</label>
+        <div class="field">
+          <input id="output-path" type="text" placeholder=".rpk file to output as" />
+        </div>
+        <button id="browse-output" type="button">Browse...</button>
+      </div>
+
+      <div class="row" id="pack-row">
+        <label title="Images are shrunk to fit inside this screen size. Animated GIFs become one still PNG unless Animated GIF is turned on in Settings.">Max image size:</label>
+        <div class="pack-opts">
+          <select id="max-size">
+            <option value="1920x1080" selected>1920x1080 PS3/PS4 Full-HD</option>
+            <option value="1280x720">1280 × 720 PS3 HD-Ready</option>
+            <option value="768x576">768 x 576 PS2 SD PAL</option>
+            <option value="720x480">720 x 480 PS2 SD NTSC</option>
+          </select>
+          <label class="check">
+            <input id="ascii-text" type="checkbox" /> Use plain quotes/dots
+          </label>
+          <label class="check">
+            <input id="no-cache" type="checkbox" /> No cache
+          </label>
+          <label class="check">
+            <input id="clear-cache" type="checkbox" /> Clear cache
+          </label>
+        </div>
+      </div>
+
+      <div class="row hidden" id="ast-row">
+        <label>Label (optional):</label>
+        <input id="ast-label" type="text" class="short" />
+      </div>
+
+      <textarea id="log" readonly></textarea>
+
+      <div class="row footer">
+        <button id="run" type="button">Run</button>
+        <button id="settings" type="button">Settings</button>
+        <button id="clear" type="button">Clear Log</button>
+        <span id="status" class="dim"></span>
+      </div>
+    </div>
+
+    <div id="settings-box" class="picker hidden">
+      <div class="picker-box settings-box">
+        <div class="picker-help">Beta features stay off until you turn them on. The choice is remembered in this browser.</div>
+        <label class="check settings-item">
+          <input id="beta-gif" type="checkbox" /> Animated GIF
+        </label>
+        <p class="settings-note">Keep every frame of a GIF, under the same file name. The PS3 player loops those frames only when it includes the animated-GIF decoder. With this off, each GIF is stored as one still PNG so the current player can show it.</p>
+        <div class="picker-actions">
+          <button id="settings-close" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="picker" class="picker hidden">
+      <div class="picker-box">
+        <div class="picker-help">Open a folder, then click Select this folder. One click opens a folder.</div>
+        <div class="picker-places">
+          <button id="picker-desktop" type="button">Desktop</button>
+          <button id="picker-drives" type="button" class="hidden">Drives</button>
+        </div>
+        <div class="picker-path" id="picker-path"></div>
+        <div id="picker-loading" class="picker-loading hidden">
+          <div class="picker-loading-label">Loading</div>
+          <div class="picker-loading-note">This can take several minutes.</div>
+          <div class="picker-loading-track"><div class="picker-loading-bar"></div></div>
+        </div>
+        <div class="picker-list" id="picker-list"></div>
+        <div class="picker-actions">
+          <button id="picker-up" type="button">Up</button>
+          <button id="picker-use" type="button">Select this folder</button>
+          <input id="picker-name" type="text" class="picker-name" />
+          <button id="picker-cancel" type="button">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
