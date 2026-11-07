@@ -1,0 +1,266 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #1e1e1e;
+  color: #cccccc;
+  font: 12px/1.4 "Segoe UI", Tahoma, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.row > label:first-child {
+  flex: 0 0 120px;
+  width: 120px;
+  text-align: right;
+  color: #707070;
+}
+
+.hidden {
+  display: none !important;
+}
+
+select,
+input[type="text"],
+button,
+textarea {
+  background: #2d2d2d;
+  color: #cccccc;
+  border: 1px solid #3f3f3f;
+  font: inherit;
+}
+
+select,
+input[type="text"] {
+  height: 24px;
+  padding: 0 6px;
+}
+
+select {
+  width: 280px;
+}
+
+#max-size {
+  width: auto;
+  min-width: 260px;
+}
+
+.field {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.field input {
+  width: 100%;
+}
+
+.row > button {
+  flex: 0 0 auto;
+}
+
+input::placeholder {
+  color: #707070;
+}
+
+.num {
+  width: 52px;
+}
+
+.short {
+  width: 200px;
+}
+
+.pack-opts {
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.pack-opts label {
+  margin-left: 10px;
+  color: #cccccc;
+}
+
+.dim {
+  color: #707070;
+}
+
+button {
+  padding: 4px 10px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+button:hover {
+  background: #3e3e3e;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+#run {
+  width: 90px;
+  margin-left: 0;
+}
+
+#log {
+  flex: 1;
+  min-height: 160px;
+  resize: none;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 11px;
+  padding: 6px;
+  white-space: pre;
+  overflow: auto;
+  width: 100%;
+}
+
+.footer {
+  margin-bottom: 0;
+}
+
+#status {
+  padding-left: 12px;
+}
+
+.picker {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.settings-box {
+  height: auto;
+  margin-top: -110px;
+}
+
+.settings-item {
+  display: block;
+  color: #cccccc;
+  margin: 12px 0 8px 0;
+}
+
+.settings-note {
+  color: #707070;
+  margin: 0 0 12px 0;
+}
+
+.picker-box {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 520px;
+  height: 420px;
+  margin-left: -260px;
+  margin-top: -210px;
+  background: #2d2d2d;
+  border: 1px solid #3f3f3f;
+  padding: 10px;
+}
+
+.picker-help {
+  color: #707070;
+  margin-bottom: 6px;
+}
+
+.picker-places {
+  margin-bottom: 6px;
+}
+
+.picker-places button {
+  margin-right: 6px;
+}
+
+.picker-path {
+  color: #cccccc;
+  margin-bottom: 6px;
+  word-break: break-all;
+}
+
+.picker-name {
+  width: 140px;
+  margin-left: 8px;
+}
+
+.picker-loading {
+  height: 250px;
+  border: 1px solid #3f3f3f;
+  background: #1e1e1e;
+}
+
+.picker-loading-label {
+  padding-top: 90px;
+  text-align: center;
+  color: #cccccc;
+}
+
+.picker-loading-note {
+  margin-top: 6px;
+  text-align: center;
+  color: #707070;
+}
+
+.picker-loading-track {
+  margin: 14px 48px 0;
+  height: 10px;
+  background: #2d2d2d;
+  border: 1px solid #3f3f3f;
+  overflow: hidden;
+}
+
+.picker-loading-bar {
+  height: 100%;
+  width: 35%;
+  background: #4a90c8;
+  animation: picker-load 1s linear infinite;
+}
+
+@keyframes picker-load {
+  0% { margin-left: -35%; }
+  100% { margin-left: 100%; }
+}
+
+.picker-list {
+  height: 250px;
+  overflow: auto;
+  border: 1px solid #3f3f3f;
+  background: #1e1e1e;
+}
+
+.picker-list div {
+  padding: 3px 8px;
+  cursor: pointer;
+}
+
+.picker-list div:hover {
+  background: #3e3e3e;
+}
+
+.picker-actions {
+  margin-top: 8px;
+}
